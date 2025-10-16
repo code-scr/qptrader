@@ -5,19 +5,13 @@ import time
 from datetime import datetime
 
 # Establish connection to the database
-while True:
-    try:
-        mydb = mysql.connector.connect(
-            host=os.environ.get("MYSQL_HOST", "db"),
-            user=os.environ.get("MYSQL_USER", "qpuser"),
-            password=os.environ.get("MYSQL_PASSWORD", "qppassword"),
-            database=os.environ.get("MYSQL_DATABASE", "qptraderdb")
-        )
-        print("Database connected")
-        break
-    except mysql.connector.Error as err:
-        print("Waiting for database...", err)
-        time.sleep(2)
+db = mysql.connector.connect(
+    host=os.getenv("MYSQL_HOST", "localhost"),
+    user=os.getenv("MYSQL_USER", "root"),
+    password=os.getenv("MYSQL_PASSWORD", ""),
+    database=os.getenv("MYSQL_DATABASE", "qptraderdb")
+)
+cursor = db.cursor()
 
 def updatedb(data):
     #Create a cursor object to execute queries
