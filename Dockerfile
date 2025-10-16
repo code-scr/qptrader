@@ -1,27 +1,11 @@
-FROM python:3.9-slim
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    default-libmysqlclient-dev \
-    libssl-dev \
-    libffi-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set working directory
+FROM python:3.9
 WORKDIR /app
-
-# Copy requirements first (to leverage Docker cache)
+COPY . /app
 COPY requirements.txt .
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy app code
-COPY . .
-
-# Expose port
+#EXPOSE 5000
+#CMD ["python", "app.py"]
 EXPOSE 8000
+CMD gunicorn --bind 0.0.0.0:8000 app:app
 
-# Start app
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:app"]
+
