@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: flask_app
+    ports:
+      - "8000:8000"   # Map container port 8000 to host port 8000
+    environment:
+      - QP_USER_NAME=root
+      - QP_PASSWORD=your_mysql_password
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=mydatabase
+    depends_on:
+      - db
+    volumes:
+      - app_data:/app/data   # Optional: persist app data if needed
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: your_mysql_password
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: root
+      MYSQL_PASSWORD: your_mysql_password
+    ports:
+      - "3306:3306"   # Expose MySQL port (optional if accessed externally)
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+
+volumes:
+  app_data:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge
