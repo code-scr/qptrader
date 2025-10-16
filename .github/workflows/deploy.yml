@@ -1,13 +1,13 @@
 name: Deploy Flask App to EC2
 
 on:
-<<<<<<< HEAD
+
   workflow_dispatch:  # allows manual trigger
-=======
+
   push:
     branches:
       - develop
->>>>>>> 29436e5fbb7b8b4104d5cc69fba23788215290f8
+
 
 jobs:
   deploy:
