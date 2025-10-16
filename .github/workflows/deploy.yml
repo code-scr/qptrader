@@ -43,15 +43,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.REGION }}
 
-      - name: Deploy Docker Compose to EC2 via SSM
+      - name: Deploy with Docker Compose via SSM
         run: |
           aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Deploying new version with Docker Compose" \
+            --comment "Deploying with Docker Compose" \
             --parameters 'commands=[
-              "cd /home/ubuntu/repo",
+              "cd /home/ubuntu/app",
+              "docker-compose down || true",
               "docker-compose pull",
               "docker-compose up -d --build"
             ]' \
             --region ${{ env.REGION }}
+
