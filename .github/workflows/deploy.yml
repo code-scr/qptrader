@@ -43,16 +43,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.REGION }}
 
-      - name: Deploy new container to EC2 via SSM
+      - name: Deploy Docker Compose to EC2 via SSM
         run: |
           aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Deploying new version" \
+            --comment "Deploying new version with Docker Compose" \
             --parameters 'commands=[
-              "docker pull docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
-              "docker stop qptrader || true",
-              "docker rm qptrader || true",
-              "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 -v qptrader_data:/app/data docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+              "cd /home/ubuntu/repo",
+              "docker-compose pull",
+              "docker-compose up -d --build"
             ]' \
             --region ${{ env.REGION }}

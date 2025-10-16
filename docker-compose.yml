@@ -1,44 +1,32 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  app:
-    build: .
-    container_name: flask_app
+  qptrader:
+    image: docker.io/${DOCKERHUB_USERNAME}/qptrader:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "8000:8000"   # Map container port 8000 to host port 8000
-    environment:
-      - QP_USER_NAME=root
-      - QP_PASSWORD=your_mysql_password
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_NAME=mydatabase
+      - "8000:8000"
+    volumes:
+      - qptrader_data:/app/data
     depends_on:
       - db
-    volumes:
-      - app_data:/app/data   # Optional: persist app data if needed
-    networks:
-      - app-network
+    restart: unless-stopped
 
   db:
     image: mysql:8.0
-    container_name: mysql_db
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: your_mysql_password
-      MYSQL_DATABASE: mydatabase
-      MYSQL_USER: root
-      MYSQL_PASSWORD: your_mysql_password
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: qptrader_db
+      MYSQL_USER: qptrader_user
+      MYSQL_PASSWORD: qptrader_pass
     ports:
-      - "3306:3306"   # Expose MySQL port (optional if accessed externally)
+      - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-    networks:
-      - app-network
+    restart: unless-stopped
 
 volumes:
-  app_data:
+  qptrader_data:
   db_data:
-
-networks:
-  app-network:
-    driver: bridge
