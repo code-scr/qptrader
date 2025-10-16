@@ -1,15 +1,15 @@
-version: "3.9"
+version: '3.9'
 
 services:
   db:
     image: mysql:8.0
-    container_name: mysql_db
+    container_name: qptrader-db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: qptraderdb
-      MYSQL_USER: qpuser
-      MYSQL_PASSWORD: qppassword
+      MYSQL_DATABASE: qptrader
+      MYSQL_USER: qptraderuser
+      MYSQL_PASSWORD: qptraderpass
     ports:
       - "3306:3306"
     volumes:
@@ -17,17 +17,17 @@ services:
 
   web:
     build: .
-    container_name: flask_app
+    container_name: qptrader-web
     restart: always
-    ports:
-      - "8000:8000"
     depends_on:
       - db
     environment:
-      MYSQL_HOST: db
-      MYSQL_DATABASE: qptraderdb
-      MYSQL_USER: qpuser
-      MYSQL_PASSWORD: qppassword
+      DB_HOST: db
+      DB_USER: qptraderuser
+      DB_PASSWORD: qptraderpass
+      DB_NAME: qptrader
+    ports:
+      - "8000:8000"
 
 volumes:
   db_data:
