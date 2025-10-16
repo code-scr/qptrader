@@ -1,11 +1,11 @@
 import mysql
-import mysql.connector
+import mysqlconnection
 import os
 import time
 from datetime import datetime
 
 # Establish connection to the database
-db = mysql.connector.connect(
+mydb = mysqlconnection.connect(
     host=os.getenv('DB_HOST', 'db'),
     user=os.getenv('DB_USER', 'root'),
     password=os.getenv('DB_PASSWORD', ''),
@@ -14,20 +14,20 @@ db = mysql.connector.connect(
 
 def updatedb(data):
     #Create a cursor object to execute queries
-    mycursor = db.cursor()
+    mycursor = mydb.cursor()
     # Define the SQL quALTERery to insert data into the trades table
     sql = "INSERT INTO trades (user, Stock, quantity, AVG_price, type, AVG_cost, status) VALUES (%s, %s, %s, %s, %s, %s, %s)"
     # Execute the query for each set of data
     mycursor.executemany(sql, data)   
     # Commit the changes to the database
-    db.commit()
+    mydb.commit()
     # Close the cursor and connection
     mycursor.close()
 
 def get_user_credentials(username):
     # Establish connection to the MySQL database
     # Replace 'your_host', 'your_username', 'your_password', and 'your_database' with your actual database credentials
-    connection = db
+    connection = mydb
     # Create a cursor object to execute SQL queries
     cursor = connection.cursor()
     # Define the SQL query to retrieve username and password from the users table
@@ -43,7 +43,7 @@ def get_user_credentials(username):
 
 def get_orders(user):
     # Create a cursor object to execute queries
-    mycursor = db.cursor(dictionary=True)
+    mycursor = mydb.cursor(dictionary=True)
     if user == 'qptrader':
         # If user is admin, fetch all details
         mycursor.execute("SELECT * FROM trades")
@@ -58,7 +58,7 @@ def get_orders(user):
 
 def get_executed_orders(user):
     # Create a cursor object to execute queries
-    mycursor = db.cursor(dictionary=True)
+    mycursor = mydb.cursor(dictionary=True)
     # Check if the user is an admin
     if user == 'qptrader':
         # If user is admin, fetch all details
