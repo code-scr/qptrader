@@ -6,10 +6,10 @@ from datetime import datetime
 
 # Establish connection to the database
 mydb = mysql.connector.connect(
-  host="mydb",
-  user= os.getenv("youruser"),
-  password= os.getenv("yourpassword"),
-  database="yourdb"
+    host=os.getenv("MYSQL_HOST", "localhost"),
+    user=os.getenv("MYSQL_USER", "user"),
+    password=os.getenv("MYSQL_PASSWORD", "password"),
+    database=os.getenv("MYSQL_DB", "qptrader")
 )
 
 def updatedb(data):
