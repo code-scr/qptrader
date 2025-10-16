@@ -1,11 +1,11 @@
 import mysql
-import mysqlconnection
+import mysql.connector
 import os
 import time
 from datetime import datetime
 
 # Establish connection to the database
-mydb = mysqlconnection.connect(
+mydb = mysql.connector.connect(
     host=os.getenv('DB_HOST', 'db'),
     user=os.getenv('DB_USER', 'root'),
     password=os.getenv('DB_PASSWORD', ''),
