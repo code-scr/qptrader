@@ -3,7 +3,7 @@ name: Build & Deploy to EC2 via SSM
 on:
   push:
     branches:
-      - develop  # or main
+      - develop
 
 env:
   IMAGE_NAME: qptrader
@@ -43,16 +43,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.REGION }}
 
-      - name: Deploy to EC2 via SSM
+      - name: Deploy new container to EC2 via SSM
         run: |
           aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Deploying qptrader with Docker Compose" \
+            --comment "Deploying new version" \
             --parameters 'commands=[
-              "cd ~/qptrader || mkdir -p ~/qptrader && cd ~/qptrader",
-              "docker compose pull",
-              "docker compose down -v || true",
-              "docker compose up -d"
+              "docker pull docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
+              "docker stop qptrader || true",
+              "docker rm qptrader || true",
+              "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 -v qptrader_data:/app/data docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
             ]' \
             --region ${{ env.REGION }}
