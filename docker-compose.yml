@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.8'
 
 services:
   mydb:
@@ -15,19 +15,19 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: qptrader_db
-      MYSQL_USER: qptrader_user
-      MYSQL_PASSWORD: qptrader_pass
+  web:
+    build: .
+    container_name: web
+    restart: always
+    depends_on:
+      - mydb
     ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-    restart: unless-stopped
+      - "8000:8000"
+    environment:
+      MYSQL_HOST: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DB: qptrader
 
 volumes:
-  qptrader_data:
   db_data:
