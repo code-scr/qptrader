@@ -26,6 +26,7 @@ services:
       DB_USER: qptraderuser
       DB_PASSWORD: qptraderpass
       DB_NAME: qptrader
+      
     ports:
       - "8000:8000"
 
