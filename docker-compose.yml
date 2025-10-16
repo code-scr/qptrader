@@ -2,34 +2,32 @@ version: "3.9"
 
 services:
   db:
-    image: mysql:8
-    container_name: qptr-mysql
+    image: mysql:8.0
+    container_name: mysql_db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: qptraderdb
-      MYSQL_USER: qptruser
-      MYSQL_PASSWORD: qptrpass
+      MYSQL_USER: qpuser
+      MYSQL_PASSWORD: qppassword
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: qptrader
+  web:
+    build: .
+    container_name: flask_app
     restart: always
-    environment:
-      MYSQL_HOST: db
-      MYSQL_DATABASE: qptraderdb
-      MYSQL_USER: qptruser
-      MYSQL_PASSWORD: qptrpass
     ports:
       - "8000:8000"
     depends_on:
       - db
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: qptraderdb
+      MYSQL_USER: qpuser
+      MYSQL_PASSWORD: qppassword
 
 volumes:
   db_data:
