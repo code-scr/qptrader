@@ -3,7 +3,7 @@ name: Build & Deploy to EC2 via SSM
 on:
   push:
     branches:
-      - develop
+      - develop  # or main
 
 env:
   IMAGE_NAME: qptrader
@@ -43,7 +43,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.REGION }}
 
+<<<<<<< HEAD
       - name: Deploy new containers to EC2 via SSM
+=======
+      - name: Deploy new containers to EC2 via SSM with Docker Compose
+>>>>>>> 315e11ad686aa76830984767b5c8fa713ab625e3
         run: |
           aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
@@ -51,7 +55,12 @@ jobs:
             --comment "Deploying new version with Docker Compose" \
             --parameters 'commands=[
               "mkdir -p ~/qptrader && cd ~/qptrader",
+<<<<<<< HEAD
               "echo '\''version: 3.9
+=======
+              "cat <<EOL > docker-compose.yml
+version: '\''3.9'\''
+>>>>>>> 315e11ad686aa76830984767b5c8fa713ab625e3
 services:
   db:
     image: mysql:8.0
@@ -66,6 +75,10 @@ services:
       - '\''3306:3306'\''
     volumes:
       - db_data:/var/lib/mysql
+<<<<<<< HEAD
+=======
+
+>>>>>>> 315e11ad686aa76830984767b5c8fa713ab625e3
   web:
     image: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
     container_name: qptrader-web
@@ -78,3 +91,14 @@ services:
       DB_PASSWORD: qptraderpass
       DB_NAME: qptrader
     ports:
+<<<<<<< HEAD
+=======
+      - '\''8000:8000'\''
+volumes:
+  db_data:
+EOL",
+              "sudo docker compose down -v || true",
+              "sudo docker compose up -d"
+            ]' \
+            --region ${{ env.REGION }}
+>>>>>>> 315e11ad686aa76830984767b5c8fa713ab625e3
