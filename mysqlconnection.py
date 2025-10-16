@@ -6,10 +6,10 @@ from datetime import datetime
 
 # Establish connection to the database
 mydb = mysql.connector.connect(
-    host="mydb",
-    user="root",
-    password="root",
-    database="qptraderdb"
+    host="host.docker.internal",  # Connect to host MySQL
+    user="qptrader_user",
+    password="your_password",
+    database="qptrader_db"
 )
 
 def updatedb(data):
