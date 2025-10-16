@@ -1,5 +1,5 @@
 Click==7.0
-Flask==2.3.4
+Flask==1.1.1
 gunicorn==19.9.0
 itsdangerous==1.1.0
 Jinja2==2.10.1
@@ -13,5 +13,5 @@ requests==2.25.1
 virtualenv==20.4.6
 Werkzeug==0.15.6
 kiteconnect==3.8.2
-mysql-connector-python==8.0.34
+mysql-connector-python==3.10
 
