@@ -3,7 +3,7 @@ name: Build & Deploy to EC2 via SSM
 on:
   push:
     branches:
-      - main
+      - develop
 
 env:
   IMAGE_NAME: qptrader
