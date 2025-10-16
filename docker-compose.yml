@@ -1,33 +1,37 @@
-version: '3.8'
+version: "3.8"
 
 services:
+  web:
+    build: .
+    container_name: qptrader
+    command: gunicorn -b 0.0.0.0:8000 app:app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mydb
+    environment:
+      - MYSQL_HOST=mydb
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=qptraderdb
+    networks:
+      - qptrader_network
+
   mydb:
-    image: mysql:8
+    image: mysql:8.0
     container_name: mydb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: qptrader
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-    ports:
-      - "3306:3306"
+      MYSQL_DATABASE: qptraderdb
     volumes:
       - db_data:/var/lib/mysql
-
-  web:
-    build: .
-    container_name: web
-    restart: always
-    depends_on:
-      - mydb
-    ports:
-      - "8000:8000"
-    environment:
-      MYSQL_HOST: mydb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_DB: qptrader
+    networks:
+      - qptrader_network
 
 volumes:
   db_data:
+
+networks:
+  qptrader_network:
+    driver: bridge
