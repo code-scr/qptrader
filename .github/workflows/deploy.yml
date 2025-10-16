@@ -1,13 +1,9 @@
-name: Deploy Flask App to EC2
+name: Auto Deploy Flask App to EC2
 
 on:
-
-  workflow_dispatch:  # allows manual trigger
-
   push:
     branches:
       - develop
-
 
 jobs:
   deploy:
@@ -17,33 +13,32 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up AWS CLI
+    - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }} # e.g., us-east-1
+        aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Deploy to EC2 via SSM
+    - name: Check if app changed
+      id: changes
       run: |
-        echo "Stopping existing container (if any)..."
-        aws ssm send-command \
-          --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
-          --document-name "AWS-RunShellScript" \
-          --comment "Stop old container" \
-          --parameters 'commands=[
-            "docker stop qptrader || true",
-            "docker rm qptrader || true",
-            "docker system prune -f"
-          ]'
+        echo "APP_CHANGED=false" >> $GITHUB_ENV
+        if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -qE '^app/|^Dockerfile'; then
+          echo "APP_CHANGED=true" >> $GITHUB_ENV
+        fi
 
-        echo "Building and running new Docker container..."
-        aws ssm send-command \
-          --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
-          --document-name "AWS-RunShellScript" \
-          --comment "Deploy new container" \
-          --parameters 'commands=[
-            "cd /home/ubuntu/app",
-            "docker build -t qptrader:1.1 .",
-            "docker run -d -p 8000:8000 --name qptrader qptrader:1.1"
-          ]'
+    - name: Deploy via SSM if app changed
+      if: env.APP_CHANGED == 'true'
+      uses: aws-actions/aws-ssm-run-command@v2
+      with:
+        targets: "Key=InstanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}"
+        document-name: "AWS-RunShellScript"
+        comment: "Auto deploy Flask Docker container"
+        parameters: |
+          commands:
+            cd /home/ubuntu/qptrader
+            docker build -t qptrader:1.1 .
+            docker stop qptrader || true
+            docker rm qptrader || true
+            docker run -d --name qptrader -p 8000:8000 qptrader:1.1
