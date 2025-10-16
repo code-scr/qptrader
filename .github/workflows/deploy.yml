@@ -3,7 +3,7 @@ name: Build & Deploy to EC2 via SSM
 on:
   push:
     branches:
-      - develop
+      - develop  # or main
 
 env:
   IMAGE_NAME: qptrader
@@ -43,16 +43,48 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.REGION }}
 
-      - name: Deploy new container to EC2 via SSM
+      - name: Deploy new containers to EC2 via SSM with Docker Compose
         run: |
           aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Deploying new version" \
+            --comment "Deploying new version with Docker Compose" \
             --parameters 'commands=[
-              "docker pull docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
-              "docker stop qptrader || true",
-              "docker rm qptrader || true",
-              "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 -v qptrader_data:/app/data docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+              "mkdir -p ~/qptrader && cd ~/qptrader",
+              "cat <<EOL > docker-compose.yml
+version: '\''3.9'\''
+services:
+  db:
+    image: mysql:8.0
+    container_name: qptrader-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: qptrader
+      MYSQL_USER: qptraderuser
+      MYSQL_PASSWORD: qptraderpass
+    ports:
+      - '\''3306:3306'\''
+    volumes:
+      - db_data:/var/lib/mysql
+
+  web:
+    image: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+    container_name: qptrader-web
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: qptraderuser
+      DB_PASSWORD: qptraderpass
+      DB_NAME: qptrader
+    ports:
+      - '\''8000:8000'\''
+volumes:
+  db_data:
+EOL",
+              "sudo docker compose down -v || true",
+              "sudo docker compose up -d"
             ]' \
             --region ${{ env.REGION }}
