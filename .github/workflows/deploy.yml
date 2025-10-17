@@ -9,6 +9,9 @@ env:
   IMAGE_NAME: qptrader
   IMAGE_TAG: ${{ github.sha }}
   REGION: ${{ secrets.AWS_REGION }}
+  QP_USER_NAME: ${{ secrets.QP_USER_NAME }}
+  QP_PASSWORD: ${{ secrets.QP_PASSWORD }}
+
 
 jobs:
   build:
