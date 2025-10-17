@@ -13,6 +13,6 @@ requests==2.25.1
 virtualenv==20.4.6
 Werkzeug==0.15.6
 kiteconnect==3.8.2
-
+mysql-connector-python
 
 

@@ -1,4 +1,4 @@
-name: Build & Deploy Flask App with RDS to EC2 via SSM
+name: Build & Deploy Single Container to EC2 via SSM
 
 on:
   push:
@@ -8,7 +8,9 @@ on:
 env:
   IMAGE_NAME: qptrader
   IMAGE_TAG: ${{ github.sha }}
-  aws-region: ${{ secrets.AWS_REGION }}
+  REGION: ${{ secrets.AWS_REGION }}
+  
+
 
 jobs:
   build:
@@ -26,7 +28,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image (Flask only)
+      - name: Build and push Docker image (Flask + MySQL)
         uses: docker/build-push-action@v6
         with:
           push: true
@@ -41,12 +43,22 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.REGION }}
 
       - name: Deploy container via AWS SSM
         uses: nohmad/aws-ssm-send-command-action@v1
         with:
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }}
           targets: '[{"Key":"InstanceIds","Values":["${{ secrets.EC2_INSTANCE_ID }}"]}]'
           document-name: "AWS-RunShellScript"
-          parameters: '{"commands":["docker pull docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}","docker stop qptrader || true","docker rm qptrader || true","docker run -d --name qptrader --restart unless-stopped -p 8000:8000 -e RDS_HOST=${{ secrets.RDS_HOST }} -e RDS_USER=${{ secrets.RDS_USER }} -e RDS_PASSWORD=${{ secrets.RDS_PASSWORD }} -e RDS_DB=${{ secrets.RDS_DB }} docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"]}'
+          parameters: |
+            {
+              "commands": [
+                "docker pull docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
+                "docker stop qptrader || true",
+                "docker rm qptrader || true",
+                "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+              ]
+            }
