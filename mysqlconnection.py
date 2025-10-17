@@ -8,12 +8,11 @@ from datetime import datetime
 
 
 mydb = mysql.connector.connect(
-    host=os.getenv("QP_DB_HOST"),
-    user=os.getenv("QP_DB_USER"),
-    password=os.getenv("QP_DB_PASS"),
-    database=os.getenv("QP_DB_NAME")
+    host=os.getenv("RDS_HOST"),         # RDS endpoint (from AWS)
+    user=os.getenv("RDS_USER"),         # e.g., admin
+    password=os.getenv("RDS_PASSWORD"), # your RDS password
+    database=os.getenv("RDS_DB")        # e.g., qptrader_db
 )
-
 
 def updatedb(data):
     #Create a cursor object to execute queries
