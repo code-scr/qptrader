@@ -8,10 +8,10 @@ from datetime import datetime
 
 
 mydb = mysql.connector.connect(
-    host="localhost",
-    user="qptrader_user",
-    password="qptrader_password",
-    database="qptrader_db"
+    host=os.getenv("QP_DB_HOST"),
+    user=os.getenv("QP_DB_USER"),
+    password=os.getenv("QP_DB_PASS"),
+    database=os.getenv("QP_DB_NAME")
 )
 
 
