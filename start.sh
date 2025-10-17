@@ -30,6 +30,28 @@ EOSQL
 
 echo "Database setup complete!"
 
+# Create necessary tables automatically
+mysql -uqptrader_user -pqptrader_password -h127.0.0.1 qptrader_db <<-EOSQL
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS trades (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    stock_symbol VARCHAR(10),
+    quantity INT,
+    price DECIMAL(10,2),
+    trade_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+EOSQL
+
+echo "Tables setup complete!"
+
 # Start Flask app
 echo "Starting Flask app on port 8000..."
 exec gunicorn app:app --bind 0.0.0.0:8000
