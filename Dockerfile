@@ -1,26 +1,34 @@
 FROM python:3.9
 
-# Install MySQL server and client
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     default-mysql-server \
     default-mysql-client \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Copy your Flask app code
+# Copy application code
 COPY . /app
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy start script and make it executable
+# Copy start script
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
-# Expose port
+# Expose port for Flask
 EXPOSE 8000
 
-# Run the startup script
+# Declare persistent volumes
+VOLUME ["/var/lib/mysql", "/app"]
+
+# Health check: simple MySQL + Flask check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8000/ || exit 1
+
+# Start both MySQL and Flask app
 CMD ["/app/start.sh"]
