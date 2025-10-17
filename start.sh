@@ -21,10 +21,16 @@ done
 
 echo "MySQL is ready!"
 
-# Optional: create default user/db if needed
-# mysql -uroot -e "CREATE DATABASE IF NOT EXISTS mydb;"
-# mysql -uroot -e "CREATE USER IF NOT EXISTS 'appuser'@'localhost' IDENTIFIED BY 'password';"
-# mysql -uroot -e "GRANT ALL PRIVILEGES ON mydb.* TO 'appuser'@'localhost'; FLUSH PRIVILEGES;"
+# Create database and user if not exists
+echo "Setting up database and user..."
+mysql -uroot <<-EOSQL
+CREATE DATABASE IF NOT EXISTS qptrader_db;
+CREATE USER IF NOT EXISTS 'qptrader_user'@'localhost' IDENTIFIED BY 'qptrader_password';
+GRANT ALL PRIVILEGES ON qptrader_db.* TO 'qptrader_user'@'localhost';
+FLUSH PRIVILEGES;
+EOSQL
+
+echo "Database and user setup complete!"
 
 # Start Flask app using Gunicorn
 echo "Starting Flask app..."

@@ -5,12 +5,16 @@ import time
 from datetime import datetime
 
 # Establish connection to the database
+
+
 mydb = mysql.connector.connect(
-    host="127.0.0.1",  # Connect to host MySQL
+    host="127.0.0.1",
     user="qptrader_user",
-    password="your_password",
-    database="qptrader_db"
+    password="qptrader_password",
+    database="qptrader_db",
+    port=3306
 )
+
 
 def updatedb(data):
     #Create a cursor object to execute queries
