@@ -41,13 +41,13 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.REGION }}
+          aws-region: ${{secrets.AWS_REGION }}
 
       - name: Deploy single container (Flask + MySQL) to EC2 via SSM
         uses: nohmad/aws-ssm-send-command-action@v1
         with:
           instance-ids: ${{ secrets.EC2_INSTANCE_ID }}
-          region: ${{ env.REGION }}
+          region: ${{ secrets.AWS_REGION }}
           commands: |
             [
               "docker pull docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
