@@ -7,12 +7,11 @@ from datetime import datetime
 # Establish connection to the database
 
 
-# Establish connection to the database
 mydb = mysql.connector.connect(
-  host="localhost",
-  user= os.getenv("QP_USER_NAME"),
-  password= os.getenv("QP_PASSWORD"),
-  database="mydatabase"
+    host="localhost",
+    user="qptrader_user",
+    password="qptrader_password",
+    database="qptrader_db"
 )
 
 
