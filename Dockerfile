@@ -9,18 +9,18 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy code
+# Copy application code
 COPY . /app
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy start script
+# Copy startup script
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
 # Expose port
 EXPOSE 8000
 
-# Run the startup script
+# Run startup script automatically
 CMD ["/app/start.sh"]

@@ -1,17 +1,31 @@
 #!/bin/bash
+set -e
 
-# Start MySQL
+echo "Initializing MySQL..."
+
+# Initialize database if first run
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+    echo "First time setup: initializing MySQL database..."
+    mysqld --initialize-insecure --user=mysql
+fi
+
+# Start MySQL in the background
 echo "Starting MySQL..."
-service mysql start
+mysqld_safe --skip-networking=0 &
 
-# Wait for MySQL to be ready
-echo "Waiting for MySQL..."
-while ! mysqladmin ping --silent; do
+# Wait until MySQL is ready
+echo "Waiting for MySQL to be ready..."
+until mysqladmin ping --silent; do
     sleep 2
 done
 
-echo "MySQL is up!"
+echo "MySQL is ready!"
 
-# Start Flask
+# Optional: create default user/db if needed
+# mysql -uroot -e "CREATE DATABASE IF NOT EXISTS mydb;"
+# mysql -uroot -e "CREATE USER IF NOT EXISTS 'appuser'@'localhost' IDENTIFIED BY 'password';"
+# mysql -uroot -e "GRANT ALL PRIVILEGES ON mydb.* TO 'appuser'@'localhost'; FLUSH PRIVILEGES;"
+
+# Start Flask app using Gunicorn
 echo "Starting Flask app..."
-gunicorn app:app --bind 0.0.0.0:8000
+exec gunicorn app:app --bind 0.0.0.0:8000
