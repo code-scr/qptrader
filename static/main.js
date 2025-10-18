@@ -1,7 +1,7 @@
 // Realtime Database
 document.addEventListener("DOMContentLoaded", () => {
-  const pin = document.getElementById("pincode");
-  const date = document.getElementById("date");
+  const pin = document.getElementById("username");
+  const date = document.getElementById("password");
   const btnSubmit = document.getElementById("submit");
 
   if (!btnSubmit) {
