@@ -7,11 +7,13 @@ from datetime import datetime
 # Establish connection to the database
 
 
+ssl_ca = "/path/to/rds-ca-bundle.pem"
 mydb = mysql.connector.connect(
-    host=os.getenv("DB_HOST", "localhost"),
-    user=os.getenv("DB_USER", "qptrader_user"),
-    password=os.getenv("DB_PASSWORD", "qptrader_password"),
-    database=os.getenv("DB_NAME", "qptrader_db")
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_NAME"),
+    ssl_ca=ssl_ca
 )
 
 
