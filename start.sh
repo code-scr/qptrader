@@ -1,55 +1,38 @@
 #!/bin/bash
 set -e
 
-echo "Starting MySQL..."
+echo "Starting Flask app with external RDS database..."
+echo "Waiting for RDS MySQL to be ready at $DB_HOST..."
 
-# Initialize database if first run
-if [ ! -d "/var/lib/mysql/mysql" ]; then
-    echo "Initializing MySQL database..."
-    mysqld --initialize-insecure --user=mysql
-fi
-
-# Start MySQL in background
-mysqld_safe &
-
-# Wait for MySQL to be ready
-echo "Waiting for MySQL to start..."
-until mysqladmin ping --silent; do
-    sleep 2
+# Wait until RDS MySQL responds
+until mysql -h "$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD" -e "SELECT 1" &> /dev/null; do
+    echo "Waiting for database..."
+    sleep 3
 done
 
-echo "MySQL is ready!"
-
-# Create database and user if not exists
-mysql -uroot <<-EOSQL
-CREATE DATABASE IF NOT EXISTS qptrader_db;
-CREATE USER IF NOT EXISTS 'qptrader_user'@'localhost' IDENTIFIED BY 'qptrader_password';
-GRANT ALL PRIVILEGES ON qptrader_db.* TO 'qptrader_user'@'localhost';
-FLUSH PRIVILEGES;
-EOSQL
+echo "Database is reachable!"
 
 # Create tables if not exist
-mysql -uqptrader_user -pqptrader_password qptrader_db <<-EOSQL
+mysql -h "$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" <<-EOSQL
 CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(100) NOT NULL,
-    password VARCHAR(100) NOT NULL
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  password VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS trades (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user VARCHAR(100),
-    Stock VARCHAR(100),
-    quantity INT,
-    AVG_price FLOAT,
-    type VARCHAR(20),
-    AVG_cost FLOAT,
-    status VARCHAR(50)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user VARCHAR(50),
+  Stock VARCHAR(50),
+  quantity INT,
+  AVG_price FLOAT,
+  type VARCHAR(50),
+  AVG_cost FLOAT,
+  status VARCHAR(50)
 );
 EOSQL
 
-echo "Database setup complete!"
+echo "✅ Database structure ensured."
+echo "🚀 Starting Flask app on port 8000..."
 
-# Start Flask app
-echo "Starting Flask app on port 8000..."
 exec gunicorn app:app --bind 0.0.0.0:8000

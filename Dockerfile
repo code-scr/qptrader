@@ -2,7 +2,6 @@ FROM python:3.9
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
-    default-mysql-server \
     default-mysql-client \
     curl \
     && rm -rf /var/lib/apt/lists/*
@@ -23,12 +22,9 @@ RUN chmod +x /app/start.sh
 # Expose port for Flask
 EXPOSE 8000
 
-# Declare persistent volumes
-VOLUME ["/var/lib/mysql", "/app"]
-
-# Health check: simple MySQL + Flask check
+# Health check (checks Flask app)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:8000/ || exit 1
 
-# Start both MySQL and Flask app
+# Start Flask app
 CMD ["/app/start.sh"]
