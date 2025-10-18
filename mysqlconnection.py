@@ -7,14 +7,14 @@ from datetime import datetime
 # Establish connection to the database
 
 
-ssl_ca = "/path/to/rds-ca-bundle.pem"
 mydb = mysql.connector.connect(
     host=os.getenv("DB_HOST"),
     user=os.getenv("DB_USER"),
     password=os.getenv("DB_PASSWORD"),
     database=os.getenv("DB_NAME"),
-    ssl_ca=ssl_ca
+    ssl_disabled=True
 )
+
 
 
 def updatedb(data):
