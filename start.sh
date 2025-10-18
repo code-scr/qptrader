@@ -1,16 +1,10 @@
 #!/bin/bash
 set -e
 
-echo "Starting Flask app with external RDS database..."
-echo "Waiting for RDS MySQL to be ready at $DB_HOST..."
-
 # Wait until RDS MySQL responds
 until mysql -h "$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD" -e "SELECT 1" &> /dev/null; do
-    echo "Waiting for database..."
     sleep 3
 done
-
-echo "Database is reachable!"
 
 # Create tables if not exist
 mysql -h "$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" <<-EOSQL
@@ -32,7 +26,5 @@ CREATE TABLE IF NOT EXISTS trades (
 );
 EOSQL
 
-echo "✅ Database structure ensured."
-echo "🚀 Starting Flask app on port 8000..."
-
+# Start Flask app with Gunicorn
 exec gunicorn app:app --bind 0.0.0.0:8000
