@@ -51,7 +51,7 @@ jobs:
           aws-region: ${{ env.REGION }}
           targets: '[{"Key":"InstanceIds","Values":["${{ secrets.EC2_INSTANCE_ID }}"]}]'
           document-name: "AWS-RunShellScript"
-          parameters: >
+          parameters: |
             {"commands": [
               "docker pull docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
               "docker stop qptrader || true",
