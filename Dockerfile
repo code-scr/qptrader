@@ -1,30 +1,20 @@
-FROM python:3.9
-
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    default-mysql-client \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Base image
+FROM python:3.12-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy application code
-COPY . /app
-
-# Install Python dependencies
+# Copy requirements and install
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy start script
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+# Copy app code
+COPY . .
 
-# Expose port for Flask
+
+
+# Expose port
 EXPOSE 8000
 
-# Health check (checks Flask app)
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:8000/ || exit 1
-
-# Start Flask app
-CMD ["/app/start.sh"]
+# Run Flask app via Gunicorn directly
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:8000", "--workers", "1"]
