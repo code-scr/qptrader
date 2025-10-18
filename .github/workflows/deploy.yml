@@ -56,7 +56,7 @@ jobs:
             "docker pull docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
             "docker stop qptrader || true",
             "docker rm qptrader || true",
-            "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 -e DB_HOST=${{ secrets.RDS_ENDPOINT }} -e DB_USER=${{ secrets.RDS_USERNAME }} -e DB_PASSWORD=${{ secrets.RDS_PASSWORD }} -e DB_NAME=${{ secrets.RDS_DB_NAME }} docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }} python adapter.py"
+            "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 -e DB_HOST=${{ secrets.RDS_ENDPOINT }} -e DB_USER=${{ secrets.RDS_USERNAME }} -e DB_PASSWORD=${{ secrets.RDS_PASSWORD }} -e DB_NAME=${{ secrets.RDS_DB_NAME }} docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
           ]}
 
 
