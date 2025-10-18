@@ -33,6 +33,7 @@ class User:
         return f'<User: {self.username}>'
 
 app = Flask(__name__)
+app.config["DEBUG"] = True
 app.secret_key = 'fnyhwrbc1fyfulg3opt6pkj25nagxphi'
 
 # Replace with your actual API key and access token
