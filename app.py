@@ -60,6 +60,7 @@ def login():
             session['username'] = username
             return redirect(url_for('profile'))
         else:
+            print("Invalid credentials")
             return render_template('login.html', message='Invalid username or password')
     return render_template('login.html', message='')
 
