@@ -1,6 +1,6 @@
 // Realtime Database
 const pin = document.getElementById("username");
-const date = document.getElementById("date");
+const date = document.getElementById("password");
 const btnSubmit = document.getElementById("submit");
 
 const database = firebase.database();
