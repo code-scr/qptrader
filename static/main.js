@@ -7,6 +7,13 @@ const database = firebase.database();
 const rootRef = database.ref('/users/');
 
 btnSubmit.addEventListener('click', (e)=> {
+  e.preventDefault(); // Prevent the page from reloading
+
+  // Input validation
+  if (pin.value === "" || date.value === "") {
+    alert("Please fill all fields");
+    return; // Stop execution if fields are empty
+  }
   const autoId = rootRef.push().key
   rootRef.child(autoId).set({
     pin: pin.value,
