@@ -1,5 +1,5 @@
 // Realtime Database
-const pin = document.getElementById("pincode");
+const pin = document.getElementById("username");
 const date = document.getElementById("date");
 const btnSubmit = document.getElementById("submit");
 
