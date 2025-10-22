@@ -32,9 +32,8 @@ DROP TRIGGER IF EXISTS trades_before_insert;
 CREATE TRIGGER trades_before_insert
 BEFORE INSERT ON trades
 FOR EACH ROW
-BEGIN
-    SET NEW.created_at = CONVERT_TZ(NOW(), '+00:00', '+05:30');
-END;
+SET NEW.created_at = CONVERT_TZ(NOW(), '+00:00', '+05:30');
+
 
 EOF
 
