@@ -46,19 +46,20 @@ def get_user_credentials(username, logging):
     return results
 
 def get_orders(user):
-    # Create a cursor object to execute queries
     mycursor = mydb.cursor(dictionary=True)
+    
     if user == 'qptrader':
-        # If user is admin, fetch all details
-        mycursor.execute("SELECT * FROM trades")
+        mycursor.execute("SELECT *, CONVERT_TZ(created_at, '+00:00', '+05:30') AS created_at_ist FROM trades")
     else:
-        # Execute the query to fetch data from the trades table
-        mycursor.execute("SELECT * FROM trades WHERE user = %s", (user,))
-    # Fetch all rows of the result
+        mycursor.execute(
+            "SELECT *, CONVERT_TZ(created_at, '+00:00', '+05:30') AS created_at_ist FROM trades WHERE user = %s", 
+            (user,)
+        )
+    
     data = mycursor.fetchall()
-    # Close the cursor
     mycursor.close()
     return data
+
 
 def get_executed_orders(user):
     # Create a cursor object to execute queries
