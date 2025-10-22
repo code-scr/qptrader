@@ -1,15 +1,12 @@
 #!/bin/bash
 
-echo "Initializing database and tables (IST mode)..."
+echo "Initializing database and tables..."
 
 mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" <<EOF
--- Set global timezone to IST (India Standard Time)
-SET GLOBAL time_zone = '+05:30';
-SET time_zone = '+05:30';
-
 -- Create database if it doesn't exist
 CREATE DATABASE IF NOT EXISTS $DB_NAME;
 
+-- Switch to the database
 USE $DB_NAME;
 
 -- Create users table
@@ -17,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  created_at DATETIME DEFAULT NOW()
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create trades table
@@ -30,15 +27,21 @@ CREATE TABLE IF NOT EXISTS trades (
   type VARCHAR(10),
   AVG_cost DECIMAL(10,2),
   status VARCHAR(20),
-  created_at DATETIME DEFAULT NOW()
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Drop and recreate trigger
+-- Drop trigger if it already exists
 DROP TRIGGER IF EXISTS trades_before_insert;
+
+-- Create trigger to set created_at with timezone conversion
 CREATE TRIGGER trades_before_insert
 BEFORE INSERT ON trades
 FOR EACH ROW
-SET NEW.created_at = NOW();
+BEGIN
+    SET NEW.created_at = CONVERT_TZ(NOW(), '+00:00', '+05:30');
+END;
+
+
 EOF
 
-echo "✅ Database '$DB_NAME' and tables initialized successfully in IST!"
+echo "Database '$DB_NAME' and tables initialized successfully!"
