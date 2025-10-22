@@ -55,7 +55,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = mysqlconnection.get_user_credentials(username)
+        user = mysqlconnection.get_user_credentials(username, logging)
         if user and user[1] == password:
             session['username'] = username
             return redirect(url_for('profile'))
