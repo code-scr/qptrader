@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create trades table
@@ -27,8 +27,21 @@ CREATE TABLE IF NOT EXISTS trades (
   type VARCHAR(10),
   AVG_cost DECIMAL(10,2),
   status VARCHAR(20),
-  created_at DATETIME DEFAULT (CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Drop trigger if it already exists
+DROP TRIGGER IF EXISTS trades_before_insert;
+
+-- Create trigger (no DELIMITER needed here)
+CREATE TRIGGER trades_before_insert
+BEFORE INSERT ON trades
+FOR EACH ROW
+BEGIN
+    SET NEW.created_at = CONVERT_TZ(NOW(), '+00:00', '+05:30');
+END;
+
+
 EOF
 
 echo "Database '$DB_NAME' and tables initialized successfully!"
