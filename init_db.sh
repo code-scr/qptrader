@@ -31,13 +31,13 @@ CREATE TABLE IF NOT EXISTS trades (
 );
 
 
-
--- Create trigger 
+DROP TRIGGER IF EXISTS trades_before_insert;
 CREATE TRIGGER trades_before_insert
 BEFORE INSERT ON trades
 FOR EACH ROW
---timestamp conversion to IST
+
 SET NEW.created_at = CONVERT_TZ(NOW(), '+00:00', '+05:30');
+
 
 
 
