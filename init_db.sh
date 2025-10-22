@@ -30,8 +30,7 @@ CREATE TABLE IF NOT EXISTS trades (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Drop trigger if it already exists
-DROP TRIGGER IF EXISTS trades_before_insert;
+
 
 -- Create trigger 
 CREATE TRIGGER trades_before_insert
