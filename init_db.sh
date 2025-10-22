@@ -7,9 +7,7 @@ mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" <<EOF
 
 CREATE DATABASE IF NOT EXISTS $DB_NAME;
 
-
 USE $DB_NAME;
-
 
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -17,7 +15,6 @@ CREATE TABLE IF NOT EXISTS users (
   password VARCHAR(255) NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-
 
 CREATE TABLE IF NOT EXISTS trades (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -31,15 +28,12 @@ CREATE TABLE IF NOT EXISTS trades (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-
 DROP TRIGGER IF EXISTS trades_before_insert;
-
 
 CREATE TRIGGER trades_before_insert
 BEFORE INSERT ON trades
 FOR EACH ROW
 SET NEW.created_at = CONVERT_TZ(NOW(), '+00:00', '+05:30');
-
 
 EOF
 echo "✅ Database '$DB_NAME' and tables initialized successfully!"
