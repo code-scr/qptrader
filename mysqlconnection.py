@@ -28,7 +28,7 @@ def updatedb(data):
     # Close the cursor and connection
     mycursor.close()
 
-def get_user_credentials(username):
+def get_user_credentials(username, logging):
     # Establish connection to the MySQL database
     # Replace 'your_host', 'your_username', 'your_password', and 'your_database' with your actual database credentials
     connection = mydb
@@ -40,6 +40,7 @@ def get_user_credentials(username):
     cursor.execute(sql_query, (username,))
     # Fetch all rows from the result set
     results = cursor.fetchone()
+    logging.info(results)
     # Close cursor and connection
     cursor.close()
     # Return the results
