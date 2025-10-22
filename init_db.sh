@@ -3,19 +3,25 @@ set -e
 
 echo "Initializing database and tables..."
 
-mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" <<EOF 
+mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" <<EOF
 
+-- Set session timezone to IST
+SET time_zone = '+05:30';
+
+-- Create database if not exists
 CREATE DATABASE IF NOT EXISTS $DB_NAME;
 
 USE $DB_NAME;
 
+-- Users table
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at DATETIME DEFAULT NOW()
 );
 
+-- Trades table
 CREATE TABLE IF NOT EXISTS trades (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user VARCHAR(50) NOT NULL,
@@ -25,15 +31,16 @@ CREATE TABLE IF NOT EXISTS trades (
   type VARCHAR(10),
   AVG_cost DECIMAL(10,2),
   status VARCHAR(20),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at DATETIME DEFAULT NOW()
 );
 
+-- Trigger for IST timestamps
 DROP TRIGGER IF EXISTS trades_before_insert;
-
 CREATE TRIGGER trades_before_insert
 BEFORE INSERT ON trades
 FOR EACH ROW
-SET NEW.created_at = CONVERT_TZ(NOW(), '+00:00', '+05:30');
+SET NEW.created_at = NOW();
 
 EOF
+
 echo "✅ Database '$DB_NAME' and tables initialized successfully!"
