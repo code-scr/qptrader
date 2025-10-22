@@ -33,16 +33,14 @@ CREATE TABLE IF NOT EXISTS trades (
 -- Drop trigger if it already exists
 DROP TRIGGER IF EXISTS trades_before_insert;
 
--- Create trigger to automatically set IST date + time
-DELIMITER //
+-- Create trigger (no DELIMITER needed here)
 CREATE TRIGGER trades_before_insert
 BEFORE INSERT ON trades
 FOR EACH ROW
 BEGIN
     SET NEW.created_at = CONVERT_TZ(NOW(), '+00:00', '+05:30');
 END;
-//
-DELIMITER ;
+
 
 EOF
 
