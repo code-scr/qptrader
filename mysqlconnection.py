@@ -15,7 +15,6 @@ mydb = mysql.connector.connect(
     
 )
 
-
 def updatedb(data):
     #Create a cursor object to execute queries
     mycursor = mydb.cursor()
