@@ -2,8 +2,7 @@
 
 echo "Initializing database and tables (fast mode)..."
 
-mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" <<EOF || { echo "Database initialization failed!"; exit 1; }
-
+mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" <<EOF 
 -- Create database if it doesn't exist
 CREATE DATABASE IF NOT EXISTS $DB_NAME;
 
