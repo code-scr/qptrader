@@ -1,16 +1,16 @@
 #!/bin/bash
-
+set -e
 
 echo "Initializing database and tables..."
 
-mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" <<EOF
--- Create database if it doesn't exist
+mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" <<EOF 
+
 CREATE DATABASE IF NOT EXISTS $DB_NAME;
 
--- Switch to the database
+
 USE $DB_NAME;
 
--- Create users table
+
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create trades table
+
 CREATE TABLE IF NOT EXISTS trades (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user VARCHAR(50) NOT NULL,
@@ -31,10 +31,10 @@ CREATE TABLE IF NOT EXISTS trades (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Drop trigger if it already exists
+
 DROP TRIGGER IF EXISTS trades_before_insert;
 
--- Create trigger (no DELIMITER needed here)
+
 CREATE TRIGGER trades_before_insert
 BEFORE INSERT ON trades
 FOR EACH ROW
@@ -42,5 +42,4 @@ SET NEW.created_at = CONVERT_TZ(NOW(), '+00:00', '+05:30');
 
 
 EOF
-
-echo "Database '$DB_NAME' and tables initialized successfully!"
+echo "✅ Database '$DB_NAME' and tables initialized successfully!"
