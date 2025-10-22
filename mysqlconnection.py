@@ -65,7 +65,7 @@ def get_executed_orders(user):
     mycursor = mydb.cursor(dictionary=True)
     # Check if the user is an admin
     if user == 'qptrader':
-        # If user is admin, fetch all details
+        ## If user is admin, fetch all details
         mycursor.execute("SELECT * FROM trades WHERE status != 'order Failed'")
     else:
         # Execute the query to fetch data from the trades table
