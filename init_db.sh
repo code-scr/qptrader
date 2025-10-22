@@ -30,7 +30,14 @@ CREATE TABLE IF NOT EXISTS trades (
     created_at DATETIME
 );
 
-
+-- Create trigger only if it doesn't exist
+DROP TRIGGER IF EXISTS trades_before_insert;
+CREATE TRIGGER trades_before_insert
+BEFORE INSERT ON trades
+FOR EACH ROW
+BEGAIN
+SET NEW.created_at = CONVERT_TZ(NOW(), '+00:00', '+05:30');
+END;
 SQL
 
 echo "Database '$DB_NAME' and tables initialized successfully in IST!"
