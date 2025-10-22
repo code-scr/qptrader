@@ -57,7 +57,7 @@ tr:nth-child(odd) {
         </tr>
         {% for order in orders %}
         <tr style="background-color: Yellow;">
-            <td>{{ order.time }}</td>
+            <td>{{ order.created_at }}</td>
             <td>{{ order.type }}</td>
             <td>{{ order.Stock }}</td>
             <td>{{ order.quantity }}</td>
