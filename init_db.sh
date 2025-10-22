@@ -1,15 +1,13 @@
 #!/bin/bash
+set -e
 
 echo "Initializing database and tables..."
 
-mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" <<EOF
--- Create database if it doesn't exist
-CREATE DATABASE IF NOT EXISTS $DB_NAME;
+mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" <<EOF || { echo "❌ Database initialization failed!"; exit 1; }
 
--- Switch to the database
+CREATE DATABASE IF NOT EXISTS $DB_NAME;
 USE $DB_NAME;
 
--- Create users table
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
@@ -17,7 +15,6 @@ CREATE TABLE IF NOT EXISTS users (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create trades table
 CREATE TABLE IF NOT EXISTS trades (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user VARCHAR(50) NOT NULL,
@@ -30,10 +27,8 @@ CREATE TABLE IF NOT EXISTS trades (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Drop trigger if it already exists
 DROP TRIGGER IF EXISTS trades_before_insert;
 
--- Create trigger to set created_at with timezone conversion
 CREATE TRIGGER trades_before_insert
 BEFORE INSERT ON trades
 FOR EACH ROW
@@ -41,7 +36,8 @@ BEGIN
     SET NEW.created_at = CONVERT_TZ(NOW(), '+00:00', '+05:30');
 END;
 
-
 EOF
 
-echo "Database '$DB_NAME' and tables initialized successfully!"
+mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" -D "$DB_NAME" -e "SHOW TABLES;"
+
+echo "✅ Database '$DB_NAME' and tables initialized successfully!"
