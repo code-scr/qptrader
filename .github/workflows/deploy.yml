@@ -28,8 +28,8 @@ jobs:
 
       - name: Initialize MySQL database and tables
         run: |
-          chmod +x scripts/init_db.sh
-          bash scripts/init_db.sh
+          chmod +x init_db.sh
+          bash init_db.sh
         env:
           DB_HOST: ${{ secrets.RDS_ENDPOINT }}
           DB_USER: ${{ secrets.RDS_USERNAME }}
