@@ -50,7 +50,7 @@ jobs:
               "docker pull docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
               "docker stop qptrader || true",
               "docker rm qptrader || true",
-              "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 -e DB_HOST=127.0.0.1 -e DB_USER=${{ secrets.EC2_MYSQL_USER }} -e DB_PASSWORD='${{ secrets.EC2_MYSQL_PASSWORD }}' -e DB_NAME=${{ secrets.EC2_MYSQL_DB }} docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} bash /app/init_db.sh && gunicorn --bind 0.0.0.0:8000 app:app"
+              "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 -e DB_HOST=${{ secrets.EC2_MYSQL_HOST }} -e DB_USER=${{ secrets.EC2_MYSQL_USER }} -e DB_PASSWORD='${{ secrets.EC2_MYSQL_PASSWORD }}' -e DB_NAME=${{ secrets.EC2_MYSQL_DB }} docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} bash /app/init_db.sh && gunicorn --bind 0.0.0.0:8000 app:app"
             ]
           }
 
