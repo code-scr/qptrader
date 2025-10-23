@@ -26,16 +26,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Initialize MySQL database on EC2
-        run: |
-          chmod +x init_db.sh
-          bash init_db.sh
-        env:
-          DB_HOST: ${{ secrets.EC2_MYSQL_HOST }}
-          DB_USER: ${{ secrets.EC2_MYSQL_USER }}
-          DB_PASSWORD: ${{ secrets.EC2_MYSQL_PASSWORD }}
-          DB_NAME: ${{ secrets.EC2_MYSQL_DB }}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -46,6 +36,24 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      # Step 1: Initialize MySQL on EC2 via SSM
+      - name: Initialize MySQL on EC2
+        uses: nohmad/aws-ssm-send-command-action@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }}
+          targets: '[{"Key":"InstanceIds","Values":["${{ secrets.EC2_INSTANCE_ID }}"]}]'
+          document-name: "AWS-RunShellScript"
+          parameters: >-
+            {
+              "commands": [
+                "chmod +x /home/ubuntu/init_db.sh",
+                "/home/ubuntu/init_db.sh"
+              ]
+            }
+
+      # Step 2: Deploy Docker container on EC2 via SSM
       - name: Deploy container via AWS SSM
         uses: nohmad/aws-ssm-send-command-action@v1
         with:
@@ -60,6 +68,6 @@ jobs:
                 "docker pull docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
                 "docker stop qptrader || true",
                 "docker rm qptrader || true",
-                "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 -e DB_HOST=${{ secrets.EC2_MYSQL_HOST }} -e DB_USER=${{ secrets.EC2_MYSQL_USER }} -e DB_PASSWORD=${{ secrets.EC2_MYSQL_PASSWORD }} -e DB_NAME=${{ secrets.EC2_MYSQL_DB }} docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+                "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 -e DB_HOST=127.0.0.1 -e DB_USER=${{ secrets.EC2_MYSQL_USER }} -e DB_PASSWORD='${{ secrets.EC2_MYSQL_PASSWORD }}' -e DB_NAME=${{ secrets.EC2_MYSQL_DB }} docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
               ]
             }
