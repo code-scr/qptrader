@@ -1,4 +1,4 @@
-name: Build & Deploy Flask App to EC2 (RDS Ready)
+name: Build & Deploy Flask App to EC2 (MySQL on Host)
 
 on:
   push:
@@ -26,25 +26,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Initialize MySQL database and tables
+      - name: Initialize MySQL database on EC2
         run: |
           chmod +x init_db.sh
           bash init_db.sh
         env:
-          DB_HOST: ${{ secrets.RDS_ENDPOINT }}
-          DB_USER: ${{ secrets.RDS_USERNAME }}
-          DB_PASSWORD: ${{ secrets.RDS_PASSWORD }}
-          DB_NAME: ${{ secrets.RDS_DB_NAME }}
+          DB_HOST: ${{ secrets.EC2_MYSQL_HOST }}
+          DB_USER: ${{ secrets.EC2_MYSQL_USER }}
+          DB_PASSWORD: ${{ secrets.EC2_MYSQL_PASSWORD }}
+          DB_NAME: ${{ secrets.EC2_MYSQL_DB }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-        env:
-          API_KEY: ${{ secrets.API_KEY }}
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -63,6 +60,11 @@ jobs:
                 "docker pull docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
                 "docker stop qptrader || true",
                 "docker rm qptrader || true",
-                "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 -e DB_HOST=${{ secrets.RDS_ENDPOINT }} -e DB_USER=${{ secrets.RDS_USERNAME }} -e DB_PASSWORD=${{ secrets.RDS_PASSWORD }} -e DB_NAME=${{ secrets.RDS_DB_NAME }} docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+                "docker run -d --name qptrader --restart unless-stopped -p 8000:8000 
+                 -e DB_HOST=${{ secrets.EC2_MYSQL_HOST }} 
+                 -e DB_USER=${{ secrets.EC2_MYSQL_USER }} 
+                 -e DB_PASSWORD=${{ secrets.EC2_MYSQL_PASSWORD }} 
+                 -e DB_NAME=${{ secrets.EC2_MYSQL_DB }}
+                 docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
               ]
             }
