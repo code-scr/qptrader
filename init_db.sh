@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS trades (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-
+--Create trigger to set created_at in trades table to IST timezone
 DROP TRIGGER IF EXISTS trades_before_insert;
 CREATE TRIGGER trades_before_insert
 BEFORE INSERT ON trades
